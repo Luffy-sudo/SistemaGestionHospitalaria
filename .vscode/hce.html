@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HYGIA | Historia Clínica Electrónica</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"> 
+    
+</head>
+<body>
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-hospital-alt logo-icon"></i>
+                <h2>HYGIA</h2>
+            </div>
+            
+
+            
+            <div class="sidebar-footer">
+                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            </div>
+        </aside>
+
+        <main class="main-content-wrapper">
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 id="page-title">Historia Clínica Electrónica</h1>
+                </div>
+                <div class="header-right">
+                    <span class="user-welcome">Cargando...</span>
+                    <i class="fas fa-bell notification-icon"></i>
+                    <div class="user-avatar">?</div>
+                </div>
+            </header>
+
+            <div id="content-area" class="content-area">
+                
+                <section id="hce" class="page-content active-page">
+                    <div class="hce-header">
+                        <h2>Detalle del Paciente 📝</h2>
+                        <div class="patient-info-card card">
+                            <h3>Paciente Activo: <span id="hce-patient-name">No Seleccionado</span></h3>
+                            <p>ID: <span id="hce-patient-id">----</span> | Edad: <span id="hce-patient-age">--</span> | Última Visita: <span id="hce-last-visit">----</span></p>
+                        </div>
+                    </div>
+
+                    <div class="hce-tabs">
+                        <button class="hce-tab-btn active" data-target="hce-notes">Notas Médicas</button>
+                        <button class="hce-tab-btn" data-target="hce-orders">Órdenes y Prescripción</button>
+                        <button class="hce-tab-btn" data-target="hce-diagnostics">Diagnósticos y Evolución</button>
+                        <button class="hce-tab-btn" data-target="hce-antecedents">Antecedentes Clínicos</button>
+                    </div>
+
+                    <div class="hce-content-area card">
+                        
+                        <div id="hce-notes" class="hce-tab-pane active-pane">
+                            <div class="controls-bar">
+                                <button class="btn btn-primary"><i class="fas fa-file-medical"></i> Nueva Nota</button>
+                                <input type="text" placeholder="Buscar notas..." class="search-input" style="max-width: 250px;">
+                            </div>
+                            <div class="timeline-container">
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <h4>Nota de Evolución (2025-10-25)</h4>
+                                        <p>Paciente estable hemodinámicamente. Plan: continuar hidratación y vigilancia. [Ver Detalle Completo]</p>
+                                        <span class="timeline-meta">Dr. López | Medicina Interna</span>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <h4>Nota de Enfermería (2025-10-25 / 18:00)</h4>
+                                        <p>Se realizan cambios de posición y control de signos vitales. Sin novedades. [Ver Detalle Completo]</p>
+                                        <span class="timeline-meta">Enfermera Ana Díaz | Turno Tarde</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="hce-orders" class="hce-tab-pane">
+                            <h3>Órdenes Activas</h3>
+                            <div class="controls-bar">
+                                <button class="btn btn-primary"><i class="fas fa-prescription-bottle-alt"></i> Nueva Orden</button>
+                            </div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th>Fármaco</th><th>Dosis</th><th>Frecuencia</th><th>Estado</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Paracetamol</td><td>500 mg</td><td>Cada 8 hrs</td><td>Activa</td></tr>
+                                    <tr><td>Amoxicilina</td><td>875 mg</td><td>Cada 12 hrs</td><td>Activa</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="hce-diagnostics" class="hce-tab-pane">
+                            <h3>Diagnósticos (CIE-10)</h3>
+                            <ul>
+                                <li>**J18.9:** Neumonía, no especificada. (Principal)</li>
+                                <li>**I10:** Hipertensión esencial (primaria). (Crónico)</li>
+                            </ul>
+                            
+                        </div>
+
+                        <div id="hce-antecedents" class="hce-tab-pane">
+                            <h3>Antecedentes Relevantes</h3>
+                            <div class="antecedents-grid">
+                                <div>**Alergias:** Penicilina (Reacción severa).</div>
+                                <div>**Cirugías:** Apendicectomía (2010).</div>
+                                <div>**Familiares:** Padre con Diabetes Tipo II.</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
