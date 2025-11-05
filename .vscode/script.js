@@ -1,13 +1,13 @@
 /**
  * HYGIA - script.js
- * Lógica de inicialización del dashboard, navegación dinámica por roles y funcionalidades de módulos.
+ * Lógica de inicialización del dashboard, navegación dinámica por roles y funcionalidades de módulos (Admisión y HCE).
  */
 
 // ==========================================================
 // 1. DATOS DE CONFIGURACIÓN Y SIMULACIÓN
 // ==========================================================
 
-// Base de datos de pacientes simulada (Inicialmente con dos pacientes)
+// Base de datos de pacientes simulada
 let PATIENTS_DB = [
     { id: 'P001', name: 'Ana María Soto', cedula: '101567890', phone: '+57 310 123 4567', birthdate: '1990-05-15', gender: 'F' },
     { id: 'P002', name: 'Carlos Javier López', cedula: '101567891', phone: '+57 320 987 6543', birthdate: '1985-11-20', gender: 'M' },
@@ -21,7 +21,8 @@ const NAVIGATION_MAP = {
         { name: 'Dashboard Médico', icon: 'fas fa-chart-line', url: 'dashboard_medico.html' },
     ],
     recepcionista: [
-        { name: 'Admisión y Citas', icon: 'fas fa-calendar-check', url: 'admision.html' }
+        { name: 'Admisión y Citas', icon: 'fas fa-calendar-check', url: 'admision.html' },
+        // Eliminado 'Búsqueda Pacientes' para simplificar el menú
     ],
     farmaceutico: [
         { name: 'Inventario Farmacia', icon: 'fas fa-pills', url: 'farmacia.html' },
@@ -48,12 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.location.pathname.includes('admision.html')) {
         initializeAdmissionModule();
     }
-
+    
     if (window.location.pathname.includes('hce.html')) {
         initializeHCEModule();
     }
-    
-    // Aquí se añadirían las inicializaciones de otros módulos (e.g., farmacia.html)
 });
 
 // ==========================================================
@@ -108,22 +107,19 @@ function buildSidebarMenu(role) {
 // 4. LÓGICA ESPECÍFICA DEL MÓDULO DE ADMISIÓN
 // ==========================================================
 
-// ==========================================================
-// LÓGICA ESPECÍFICA DEL MÓDULO DE ADMISIÓN (COMPLETA)
-// ==========================================================
-
 function initializeAdmissionModule() {
     // 1. Obtención de elementos críticos para Admisión
     const btnShowRegister = document.getElementById('btn-show-register');
     const btnHideRegister = document.getElementById('btn-hide-register');
-    const registrationFormPane = document.getElementById('patient-registration-form');
+    // Referencia al MODAL
+    const registrationModal = document.getElementById('patient-registration-modal'); 
     const newPatientForm = document.getElementById('new-patient-form');
     const tabsContainer = document.querySelector('.hce-tabs');
     const listPatientsTabBtn = document.querySelector('[data-tab="list-patients"]');
-    const searchInput = document.getElementById('search-input'); // <<<< REINTRODUCIDO ESTO
+    const searchInput = document.getElementById('search-input'); 
 
     // Comprobación de existencia de elementos críticos
-    if (!btnShowRegister || !btnHideRegister || !registrationFormPane || !newPatientForm || !searchInput) {
+    if (!btnShowRegister || !btnHideRegister || !registrationModal || !newPatientForm || !searchInput) {
         console.error("ADMISSION MODULE ERROR: Uno o más IDs críticos no se encontraron. Verifique la coincidencia de IDs en admision.html.");
         return; 
     }
@@ -132,11 +128,9 @@ function initializeAdmissionModule() {
     document.querySelectorAll('.hce-tab-btn').forEach(button => {
         button.addEventListener('click', function() {
             // Ocultar el formulario de registro si estaba visible
-            registrationFormPane.style.display = 'none';
-            registrationFormPane.classList.remove('active-pane');
-            tabsContainer.style.display = 'flex'; 
+            registrationModal.style.display = 'none'; // Asegurar que el modal esté oculto
 
-            // Activar la pestaña correcta
+            // Activar la pestaña correcta (list-patients)
             document.querySelectorAll('.hce-tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.hce-tab-pane').forEach(pane => {
                 pane.classList.remove('active-pane');
@@ -150,27 +144,25 @@ function initializeAdmissionModule() {
         });
     });
 
-    // 3. Manejo de Formulario de Registro (Botones Mostrar/Ocultar y Submit)
+    // 3. Manejo de Modal de Registro (Botones Mostrar/Ocultar y Submit)
     
-    // Mostrar el formulario
+    // Mostrar el modal (usado por btn-show-register)
     btnShowRegister.addEventListener('click', () => {
-        document.querySelectorAll('.hce-tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.hce-tab-pane').forEach(pane => pane.classList.remove('active-pane'));
-        tabsContainer.style.display = 'none';
-
-        registrationFormPane.style.display = 'block';
-        registrationFormPane.classList.add('active-pane');
+        registrationModal.style.display = 'flex'; // Usamos flex para centrar el modal
     });
 
-    // Ocultar el formulario y volver a la lista de pacientes
+    // Ocultar el modal (usado por btn-hide-register, close-button)
     btnHideRegister.addEventListener('click', () => {
-        registrationFormPane.style.display = 'none';
-        registrationFormPane.classList.remove('active-pane');
+        registrationModal.style.display = 'none';
+        renderPatientTable(PATIENTS_DB); // Refrescar la tabla al cerrar
+    });
 
-        tabsContainer.style.display = 'flex';
-        listPatientsTabBtn.classList.add('active');
-        document.getElementById('list-patients').classList.add('active-pane');
-        renderPatientTable(PATIENTS_DB);
+    // Cerrar modal al hacer clic fuera de su contenido
+    registrationModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            registrationModal.style.display = 'none';
+            renderPatientTable(PATIENTS_DB);
+        }
     });
 
     // Simulación de REGISTRO DE PACIENTE
@@ -196,15 +188,18 @@ function initializeAdmissionModule() {
             gender: gender
         };
 
+        // Añadir a la base de datos simulada
         PATIENTS_DB.push(newPatient);
         
         alert(`Paciente ${name} (ID: ${newId}) registrado exitosamente. (Simulación)`);
         
+        // Limpiar formulario y cerrar modal
         newPatientForm.reset();
-        btnHideRegister.click(); 
+        registrationModal.style.display = 'none'; 
+        renderPatientTable(PATIENTS_DB); // Refrescar tabla
     });
 
-    // 4. Manejo de Búsqueda de Pacientes (Por Cédula o Nombre) <<<< REINTRODUCIDO ESTO
+    // 4. Manejo de Búsqueda de Pacientes (Por Cédula o Nombre)
     searchInput.addEventListener('input', function() {
         const query = this.value.toLowerCase().trim();
         
@@ -226,45 +221,56 @@ function initializeAdmissionModule() {
 }
 
 // ==========================================================
-// LÓGICA ESPECÍFICA DEL MÓDULO HCE
+// 5. LÓGICA ESPECÍFICA DEL MÓDULO HCE
 // ==========================================================
 
 function initializeHCEModule() {
+    // Lectura de URL (ej: hce.html?patient=P001)
     const urlParams = new URLSearchParams(window.location.search);
     const patientId = urlParams.get('patient');
     
     const nameElement = document.getElementById('patient-name');
     const detailsElement = document.getElementById('patient-details');
     const warningElement = document.getElementById('patient-warning');
+    const patientCard = document.getElementById('active-patient-card');
+
+    // A. BÚSQUEDA Y CARGA DE PACIENTE ACTIVO
+    let patient = null;
     
-    if (!patientId) {
-        // Si no hay ID en la URL, mostramos el mensaje de advertencia
-        if (warningElement) warningElement.style.display = 'block';
-        return;
+    if (patientId && PATIENTS_DB) {
+        patient = PATIENTS_DB.find(p => p.id === patientId);
     }
-
-    // Buscar los datos del paciente en la base de datos simulada (PATIENTS_DB, definida en script.js)
-    const patient = PATIENTS_DB.find(p => p.id === patientId);
-
+    
     if (patient) {
         const age = calculateAge(patient.birthdate);
         
+        // Cargar datos en el panel superior
         nameElement.textContent = patient.name;
         detailsElement.innerHTML = `ID: ${patient.id} | Edad: ${age} años | Última Visita: Hoy (simulado)`;
-        // Ocultamos la advertencia si el paciente se encuentra
+        
+        if (patientCard) patientCard.classList.add('patient-loaded');
         if (warningElement) warningElement.style.display = 'none';
 
     } else {
-        nameElement.textContent = 'Paciente NO ENCONTRADO';
-        detailsElement.innerHTML = `ID solicitado: ${patientId}`;
+        // Si no hay ID o el paciente no se encuentra
+        nameElement.textContent = 'No Seleccionado';
+        detailsElement.innerHTML = patientId ? `ID solicitado: ${patientId}. Paciente no encontrado.` : `ID: ---- | Edad: -- | Última Visita: ----`;
+        
+        if (patientCard) patientCard.classList.add('patient-error');
         if (warningElement) warningElement.style.display = 'block';
     }
-
+    
+    // B. LÓGICA ESPECÍFICA: NOTAS MÉDICAS (Guardar Nota)
     const saveNoteButton = document.querySelector('#notas button.btn-primary');
     const noteTextarea = document.querySelector('#notas textarea');
     
-    if (saveNoteButton && noteTextarea && patient) {
+    if (saveNoteButton && noteTextarea) {
         saveNoteButton.addEventListener('click', () => {
+            if (!patient) {
+                alert("Error de guardado: Primero debe seleccionar y cargar un Paciente Activo para guardar la nota.");
+                return;
+            }
+            
             const noteContent = noteTextarea.value.trim();
             
             if (noteContent.length === 0) {
@@ -274,15 +280,13 @@ function initializeHCEModule() {
             
             // Simulación de guardado
             console.log(`Guardando nueva nota para paciente ${patient.id} (${patient.name}):\n${noteContent}`);
-            
-            // Aquí iría la lógica de guardar en el servidor.
             alert(`Nota de ${patient.name} guardada exitosamente. (Simulación)`);
             
-            // Limpiar el campo de texto después de guardar (Opcional)
             noteTextarea.value = '';
         });
+    }
     
-    // Lógica para que las pestañas funcionen
+    // C. INICIALIZACIÓN DE PESTAÑAS
     setupHCETabs();
 }
 
@@ -301,23 +305,10 @@ function setupHCETabs() {
     });
 }
 
-// Función utilitaria para calcular la edad a partir de la fecha de nacimiento (YYYY-MM-DD)
-function calculateAge(birthdate) {
-    if (!birthdate) return '--';
-    const today = new Date();
-    const dob = new Date(birthdate);
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDifference = today.getMonth() - dob.getMonth();
-    
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < dob.getDate())) {
-        age--;
-    }
-    return age;
-}
+// ==========================================================
+// 6. FUNCIONES DE AYUDA
+// ==========================================================
 
-// ==========================================================
-// 5. FUNCIÓN DE AYUDA: Renderizar la Tabla de Pacientes
-// ==========================================================
 function renderPatientTable(patients) {
     const tableBody = document.querySelector('.data-table tbody');
     if (!tableBody) return;
@@ -341,4 +332,18 @@ function renderPatientTable(patients) {
         `;
         tableBody.insertAdjacentHTML('beforeend', row);
     });
+}
+
+// Función utilitaria para calcular la edad a partir de la fecha de nacimiento (YYYY-MM-DD)
+function calculateAge(birthdate) {
+    if (!birthdate) return '--';
+    const today = new Date();
+    const dob = new Date(birthdate);
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDifference = today.getMonth() - dob.getMonth();
+    
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < dob.getDate())) {
+        age--;
+    }
+    return age;
 }
