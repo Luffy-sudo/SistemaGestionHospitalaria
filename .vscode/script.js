@@ -259,6 +259,28 @@ function initializeHCEModule() {
         detailsElement.innerHTML = `ID solicitado: ${patientId}`;
         if (warningElement) warningElement.style.display = 'block';
     }
+
+    const saveNoteButton = document.querySelector('#notas button.btn-primary');
+    const noteTextarea = document.querySelector('#notas textarea');
+    
+    if (saveNoteButton && noteTextarea && patient) {
+        saveNoteButton.addEventListener('click', () => {
+            const noteContent = noteTextarea.value.trim();
+            
+            if (noteContent.length === 0) {
+                alert("Por favor, escriba la nota de evolución antes de guardar.");
+                return;
+            }
+            
+            // Simulación de guardado
+            console.log(`Guardando nueva nota para paciente ${patient.id} (${patient.name}):\n${noteContent}`);
+            
+            // Aquí iría la lógica de guardar en el servidor.
+            alert(`Nota de ${patient.name} guardada exitosamente. (Simulación)`);
+            
+            // Limpiar el campo de texto después de guardar (Opcional)
+            noteTextarea.value = '';
+        });
     
     // Lógica para que las pestañas funcionen
     setupHCETabs();
